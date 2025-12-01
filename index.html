@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PDF Tools | Image → PDF, Text → PDF, Merge PDF, Reader</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6366f1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
+<style>
+body{margin:0;padding:20px;background:#0f172a;color:white;font-family:Arial, Helvetica, sans-serif;}
+.container{background:#0b1220;padding:20px;border-radius:12px;max-width:900px;margin:auto;}
+.tabs{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.tab-btn{padding:10px 14px;border-radius:8px;border:none;cursor:pointer;background:#0f172a;color:white;box-shadow:0 4px 14px rgba(2,6,23,0.6);}
+.tab-btn.active{background:#6366f1;}
+.section{display:none;}
+.section.active{display:block;}
+input, textarea, button{width:100%;padding:12px;border-radius:8px;margin-top:10px;border:none;outline:none;box-sizing:border-box;}
+button{background:#6366f1;color:white;cursor:pointer;}
+#pdfViewer canvas{width:100%;margin-bottom:10px;}
+#pdfViewer{height:450px;overflow:auto;background:#0f172a;border-radius:10px;padding:10px;border:1px solid rgba(255,255,255,0.03);}
+.label{font-size:14px;color:#cde;margin-top:6px}
+.social-icons{display:flex;justify-content:center;align-items:center;gap:25px;margin-top:40px;}
+.social-icons a{width:45px;height:45px;border-radius:50%;display:flex;justify-content:center;align-items:center;background:rgba(255,255,255,0.06);transition:0.3s;}
+.social-icons a.telegram:hover{background:#2AABEE;box-shadow:0 0 15px #2AABEE;}
+.social-icons a.instagram:hover{background:linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);box-shadow:0 0 15px #d62976;}
+.social-icons a.github:hover{background:#ffffff;box-shadow:0 0 15px #ffffff;}
+.social-icons a.github:hover svg{fill:#000;}
+.social-icons svg{width:24px;height:24px;fill:white;transition:0.2s;}
+</style>
+</head>
+
+<body>
+
+<h1 style="text-align:center">📄 All-in-One PDF Tools</h1>
+
+<div style="max-width:920px;margin:14px auto">
+<div class="tabs">
+    <button class="tab-btn active" onclick="showTab('imgTab', this)">🖼️ Image → PDF</button>
+    <button class="tab-btn" onclick="showTab('textTab', this)">✍️ Text → PDF</button>
+    <button class="tab-btn" onclick="showTab('mergeTab', this)">🔗 Merge PDFs</button>
+    <button class="tab-btn" onclick="showTab('readTab', this)">📘 PDF Reader</button>
+</div>
+
+<div class="container">
+
+    <div class="section active" id="imgTab">
+        <h2>🖼️ Image → PDF</h2>
+        <input type="file" id="imgInput" accept="image/*" multiple>
+        <input type="text" id="watermarkImg" placeholder="Enter watermark (optional)">
+        <button onclick="imgToPDF()">Generate PDF</button>
+    </div>
+
+    <div class="section" id="textTab">
+        <h2>✍️ Text → PDF</h2>
+        <textarea id="textInput" rows="8" placeholder="Type text here..."></textarea>
+        <input type="text" id="watermarkText" placeholder="Enter watermark (optional)">
+        <button onclick="textToPDF()">Create PDF</button>
+    </div>
+
+    <div class="section" id="mergeTab">
+        <h2>🔗 Merge Multiple PDFs</h2>
+        <input type="file" id="mergeInput" accept="application/pdf" multiple>
+        <input type="text" id="watermarkMerge" placeholder="Enter watermark (optional)">
+        <button onclick="mergePDFs()">Merge PDFs</button>
+    </div>
+
+    <div class="section" id="readTab">
+        <h2>📘 PDF Reader</h2>
+        <input type="file" id="pdfInput" accept="application/pdf">
+        <div id="pdfViewer"></div>
+    </div>
+
+</div>
+</div>
+
+<div class="social-icons">
+    <a href="https://t.me/w4simz" target="_blank" class="telegram"><svg viewBox="0 0 24 24"><path d="M9.999 15.2L9.8 19c.4 0 .6-.2.8-.4l1.9-1.8 3.9 2.8c.7.4 1.2.2 1.4-.7l2.5-11.8c.2-1-.3-1.3-1.1-1l-16 6.1c-1 .4-1 1 0 1.3l4.1 1.3 9.5-6c.5-.3.9-.1.5.2l-7.4 6.6z"/></svg></a>
+    <a href="https://instagram.com/w4simz" target="_blank" class="instagram"><svg viewBox="0 0 24 24"><path d="M7 2C4.2 2 2 4.2 2 7v10c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5V7c0-2.8-2.2-5-5-5H7zm10 2c1.7 0 3 1.3 3 3v10c0 1.7-1.3 3-3 3H7c-1.7 0-3-1.3-3-3V7c0-1.7 1.3-3 3-3h10zm-5 3a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6zm5.5-.8a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z"/></svg></a>
+    <a href="https://github.com/w4simz" target="_blank" class="github"><svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12a10 10 0 006.8 9.5c.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.3-3.4-1.3-.4-.9-1-1.2-1-1.2-.8-.5.1-.5.1-.5.9.1 1.4.9 1.4.9.8 1.4 2.1 1 2.6.7.1-.6.3-1 .5-1.2-2.2-.3-4.6-1.1-4.6-4.9 0-1.1.4-2 1-2.7-.1-.3-.5-1.3.1-2.7 0 0 .9-.3 2.8 1 .8-.2 1.6-.3 2.4-.3s1.6.1 2.4.3c1.9-1.3 2.8-1 2.8-1 .6 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.8-2.4 4.6-4.6 4.9.3.3.6.8.6 1.6v2.4c0 .3.2.6.7.5A10 10 0 0022 12c0-5.5-4.5-10-10-10z"/></svg></a>
+</div>
+
+<script>
+function showTab(id, btn){
+    document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+}
+function applyWatermark(pdf, text){
+    if(!text) return;
+    const pages = pdf.internal.getNumberOfPages();
+    for(let i=1;i<=pages;i++){
+        pdf.setPage(i); pdf.setTextColor(150,150,150); pdf.setFontSize(28);
+        pdf.text(text,40,150,{angle:30});
+    }
+}
+async function imgToPDF(){
+    const { jsPDF }=window.jspdf;
+    const files=imgInput.files;
+    const watermark=watermarkImg.value.trim();
+    if(files.length===0) return alert("Select image(s)");
+    const pdf=new jsPDF();
+    for(let i=0;i<files.length;i++){
+        const data=await fileToDataURL(files[i]);
+        if(i>0) pdf.addPage();
+        pdf.addImage(data,"JPEG",10,10,190,250);
+    }
+    applyWatermark(pdf,watermark);
+    pdf.save("images.pdf");
+}
+function textToPDF(){
+    const { jsPDF }=window.jspdf;
+    const text=textInput.value.trim();
+    const watermark=watermarkText.value.trim();
+    if(!text) return alert("Enter text");
+    const pdf=new jsPDF();
+    const lines=pdf.splitTextToSize(text,180);
+    pdf.text(lines,15,15);
+    applyWatermark(pdf,watermark);
+    pdf.save("text.pdf");
+}
+async function mergePDFs(){
+    const { jsPDF }=window.jspdf;
+    const files=mergeInput.files;
+    const watermark=watermarkMerge.value.trim();
+    if(files.length<1) return alert("Select PDFs");
+    const pdf=new jsPDF();
+    let first=true;
+    for(const file of files){
+        const buffer=await file.arrayBuffer();
+        const uint=new Uint8Array(buffer);
+        const doc=await pdfjsLib.getDocument(uint).promise;
+        for(let p=1;p<=doc.numPages;p++){
+            const page=await doc.getPage(p);
+            const vp=page.getViewport({scale:1.3});
+            const canvas=document.createElement("canvas");
+            const ctx=canvas.getContext("2d");
+            canvas.width=vp.width; canvas.height=vp.height;
+            await page.render({canvasContext:ctx,viewport:vp}).promise;
+            const img=canvas.toDataURL("image/jpeg");
+            if(!first) pdf.addPage();
+            pdf.addImage(img,"JPEG",0,0,210,297);
+            first=false;
+        }
+    }
+    applyWatermark(pdf,watermark);
+    pdf.save("merged.pdf");
+}
+pdfInput.onchange=()=>{
+    const file=pdfInput.files[0];
+    const r=new FileReader();
+    r.onload=()=>showPDF(r.result);
+    r.readAsArrayBuffer(file);
+};
+function showPDF(data){
+    pdfViewer.innerHTML="";
+    const uint=new Uint8Array(data);
+    pdfjsLib.getDocument(uint).promise.then(pdf=>{
+        for(let i=1;i<=pdf.numPages;i++){
+            pdf.getPage(i).then(page=>{
+                const vp=page.getViewport({scale:1.3});
+                const canvas=document.createElement("canvas");
+                const ctx=canvas.getContext("2d");
+                canvas.width=vp.width; canvas.height=vp.height;
+                pdfViewer.appendChild(canvas);
+                page.render({canvasContext:ctx,viewport:vp});
+            });
+        }
+    });
+}
+function fileToDataURL(file){
+    return new Promise(res=>{
+        const r=new FileReader();
+        r.onload=()=>res(r.result);
+        r.readAsDataURL(file);
+    });
+}
+</script>
+
+</body>
+</html>
